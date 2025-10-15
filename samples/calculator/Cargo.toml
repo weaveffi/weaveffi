@@ -8,3 +8,4 @@ crate-type = ["cdylib"]
 path = "src/lib.rs"
 
 [dependencies]
+weaveffi-core = { path = "../../crates/weaveffi-core" }

@@ -1,18 +1,39 @@
-#[no_mangle]
-pub extern "C" fn weaveffi_calculator_add(a: i32, b: i32) -> i32 { a + b }
+use std::os::raw::c_char;
+use weaveffi_core::abi::{self, weaveffi_error};
 
 #[no_mangle]
-pub extern "C" fn weaveffi_calculator_mul(a: i32, b: i32) -> i32 { a * b }
-
-#[no_mangle]
-pub extern "C" fn weaveffi_calculator_echo(ptr: *const u8, len: usize) -> *mut u8 {
-    // Safety contract: ptr must be valid UTF-8 bytes of length len
-    let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
-    let s = String::from_utf8_lossy(slice).into_owned();
-    let mut bytes = s.into_bytes();
-    bytes.push(0); // NUL terminate
-    let mut boxed = bytes.into_boxed_slice();
-    let ptr = boxed.as_mut_ptr();
-    std::mem::forget(boxed);
-    ptr
+pub extern "C" fn weaveffi_calculator_add(a: i32, b: i32, out_err: *mut weaveffi_error) -> i32 {
+    abi::error_set_ok(out_err);
+    a + b
 }
+
+#[no_mangle]
+pub extern "C" fn weaveffi_calculator_mul(a: i32, b: i32, out_err: *mut weaveffi_error) -> i32 {
+    abi::error_set_ok(out_err);
+    a * b
+}
+
+#[no_mangle]
+pub extern "C" fn weaveffi_calculator_echo(ptr: *const u8, len: usize, out_err: *mut weaveffi_error) -> *const c_char {
+    // Safety contract: ptr must be valid bytes of length len
+    let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+    let s = match String::from_utf8(slice.to_vec()) {
+        Ok(v) => v,
+        Err(e) => {
+            abi::error_set(out_err, 1, &format!("invalid UTF-8: {}", e));
+            return std::ptr::null();
+        }
+    };
+    abi::error_set_ok(out_err);
+    abi::string_to_c_ptr(s)
+}
+
+// Expose free helpers and error clear to conform to the ABI requirements.
+#[no_mangle]
+pub extern "C" fn weaveffi_free_string(ptr_: *const c_char) { abi::free_string(ptr_) }
+
+#[no_mangle]
+pub extern "C" fn weaveffi_free_bytes(ptr: *mut u8, len: usize) { abi::free_bytes(ptr, len) }
+
+#[no_mangle]
+pub extern "C" fn weaveffi_error_clear(err: *mut weaveffi_error) { abi::error_clear(err) }
