@@ -10,15 +10,23 @@ pub struct Api {
 pub struct Module {
     pub name: String,
     pub functions: Vec<Function>,
+    /// Optional error domain for this module
+    #[serde(default)]
+    pub errors: Option<ErrorDomain>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Function {
     pub name: String,
     pub params: Vec<Param>,
+    /// Use key "return" in serialized formats
+    #[serde(rename = "return")]
     pub returns: Option<TypeRef>,
     #[serde(default)]
     pub doc: Option<String>,
+    /// Async not supported for 0.1.0; present for forward-compat
+    #[serde(default, rename = "async")]
+    pub r#async: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,4 +46,20 @@ pub enum TypeRef {
     #[serde(rename = "string")] StringUtf8,
     #[serde(rename = "bytes")] Bytes,
     #[serde(rename = "handle")] Handle,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ErrorDomain {
+    pub name: String,
+    pub codes: Vec<ErrorCode>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ErrorCode {
+    /// Symbolic name, e.g. "InvalidInput"
+    pub name: String,
+    /// Numeric code (non-zero)
+    pub code: i32,
+    /// Human-readable message
+    pub message: String,
 }
