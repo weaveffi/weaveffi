@@ -1,0 +1,18 @@
+version: "0.1.0"
+modules:
+  - name: calculator
+    functions:
+      - name: add
+        params:
+          - { name: a, type: i32 }
+          - { name: b, type: i32 }
+        return: i32
+      - name: mul
+        params:
+          - { name: a, type: i32 }
+          - { name: b, type: i32 }
+        return: i32
+      - name: echo
+        params:
+          - { name: s, type: string }
+        return: string

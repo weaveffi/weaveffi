@@ -1,6 +1,7 @@
 use anyhow::Result;
 use camino::Utf8Path;
 use weaveffi_ir::ir::Api;
+use crate::wasm::write_minimal_wasm_stub;
 
 pub trait Generator {
     fn name(&self) -> &'static str;
@@ -22,5 +23,14 @@ impl<'a> Orchestrator<'a> {
             g.generate(api, out_dir)?;
         }
         Ok(())
+    }
+}
+
+pub struct WasmGenerator;
+
+impl Generator for WasmGenerator {
+    fn name(&self) -> &'static str { "wasm" }
+    fn generate(&self, _api: &Api, out_dir: &Utf8Path) -> Result<()> {
+        write_minimal_wasm_stub(out_dir)
     }
 }

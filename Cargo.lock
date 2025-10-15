@@ -1316,6 +1316,10 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "weaveffi-core",
+ "weaveffi-gen-android",
+ "weaveffi-gen-c",
+ "weaveffi-gen-node",
+ "weaveffi-gen-swift",
  "weaveffi-ir",
 ]
 

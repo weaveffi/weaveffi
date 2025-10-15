@@ -12,3 +12,7 @@ weaveffi-core = { path = "../weaveffi-core" }
 weaveffi-ir = { path = "../weaveffi-ir" }
 camino = { workspace = true }
 color-eyre = { workspace = true }
+weaveffi-gen-c = { path = "../weaveffi-gen-c" }
+weaveffi-gen-swift = { path = "../weaveffi-gen-swift" }
+weaveffi-gen-android = { path = "../weaveffi-gen-android" }
+weaveffi-gen-node = { path = "../weaveffi-gen-node" }
