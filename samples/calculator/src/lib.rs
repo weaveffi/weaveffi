@@ -14,6 +14,16 @@ pub extern "C" fn weaveffi_calculator_mul(a: i32, b: i32, out_err: *mut weaveffi
 }
 
 #[no_mangle]
+pub extern "C" fn weaveffi_calculator_div(a: i32, b: i32, out_err: *mut weaveffi_error) -> i32 {
+    if b == 0 {
+        abi::error_set(out_err, 2, "division by zero");
+        return 0;
+    }
+    abi::error_set_ok(out_err);
+    a / b
+}
+
+#[no_mangle]
 pub extern "C" fn weaveffi_calculator_echo(ptr: *const u8, len: usize, out_err: *mut weaveffi_error) -> *const c_char {
     // Safety contract: ptr must be valid bytes of length len
     let slice = unsafe { std::slice::from_raw_parts(ptr, len) };

@@ -6,6 +6,7 @@ members = [
     "crates/weaveffi-gen-swift",
     "crates/weaveffi-gen-android",
     "crates/weaveffi-gen-node",
+    "crates/weaveffi-node-addon",
     "crates/weaveffi-cli",
     "samples/calculator",
 ]
