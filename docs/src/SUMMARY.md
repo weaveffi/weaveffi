@@ -2,16 +2,18 @@
 
 - [Introduction](intro.md)
 - [Roadmap](roadmap.md)
-
 - [Getting Started](getting-started.md)
 - [Samples](samples.md)
-
+- [Reference](reference/README.md)
+  - [IDL Schema](reference/idl.md)
+  - [Memory & Error Model](reference/memory-error.md)
 - [Generators](generators/README.md)
   - [Android](generators/android.md)
   - [C](generators/c.md)
   - [Node](generators/node.md)
   - [Swift](generators/swift.md)
   - [WASM](generators/wasm.md)
-
 - [API](api/README.md)
   - [Rust API (cargo doc)](../api/rust/index.html)
+- [Tutorials](tutorials/README.md)
+  - [Calculator](tutorials/calculator.md)
