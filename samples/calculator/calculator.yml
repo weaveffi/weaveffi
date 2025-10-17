@@ -12,6 +12,11 @@ modules:
           - { name: a, type: i32 }
           - { name: b, type: i32 }
         return: i32
+      - name: div
+        params:
+          - { name: a, type: i32 }
+          - { name: b, type: i32 }
+        return: i32
       - name: echo
         params:
           - { name: s, type: string }
