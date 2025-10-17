@@ -38,6 +38,11 @@ jobs:
 
       - name: Assemble site
         run: |
+          # Ensure root site dir exists and include mdBook output (built to docs/site)
+          mkdir -p site
+          cp -r docs/site/* site/
+
+          # Copy Rust API docs under /api/rust
           mkdir -p site/api/rust
           cp -r target/doc/* site/api/rust/
           touch site/.nojekyll
