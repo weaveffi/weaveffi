@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-test:
+    name: Build and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-targets: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build workspace (debug)
+        run: cargo build --workspace --all-targets
+
+      - name: Run unit tests
+        run: cargo test --workspace --all-features --no-fail-fast
+
+      - name: Build CLI (release)
+        run: cargo build -p weaveffi-cli --release
+
+      - name: Generate bindings from calculator IDL
+        run: target/release/weaveffi-cli generate samples/calculator/calculator.yml -o generated
+
+      - name: Build calculator cdylib (debug)
+        run: cargo build -p calculator
+
+      - name: Compile C example
+        run: cc -I generated/c examples/c/main.c -L target/debug -lcalculator -o c_example
+
+      - name: Run C example
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            DYLD_LIBRARY_PATH=target/debug ./c_example
+          else
+            LD_LIBRARY_PATH=target/debug ./c_example
+          fi
+
+      - name: Build Node addon (debug)
+        run: cargo build -p weaveffi-node-addon
+
+      - name: Place Node addon next to generated loader
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cp target/debug/libindex.dylib generated/node/index.node
+          else
+            cp target/debug/libindex.so generated/node/index.node
+          fi
+
+      - name: Smoke run Node example
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            export DYLD_LIBRARY_PATH="$PWD/target/debug"
+            export WEAVEFFI_LIB="$PWD/target/debug/libcalculator.dylib"
+          else
+            export LD_LIBRARY_PATH="$PWD/target/debug"
+            export WEAVEFFI_LIB="$PWD/target/debug/libcalculator.so"
+          fi
+          node examples/node/main.mjs
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weaveffi-cli-${{ runner.os }}
+          path: target/release/weaveffi-cli
+          if-no-files-found: error
+          retention-days: 7
